@@ -1,38 +1,21 @@
 package main
 
 import (
+	"container/list"
 	"crypto/md5"
 	"fmt"
 	"math/rand"
 )
 
 type CanonicalHash struct {
-	Number int32
-	Token  string
-	Key    string
-	Gen    string
-	Owner  string
+	Sequence int32
+	Token    string
+	Key      string
+	Gen      string
+	Owner    string
 
 	//Help     string
 	Verified bool
-}
-
-func (hash CanonicalHash) Print() {
-	key := hash.Key
-	if len(key) == 0 {
-		key = "00000000000000000000000000000000"
-	}
-	verified := "NotVerified"
-	if hash.Verified {
-		verified = "Verified"
-	}
-	fmt.Println(
-		fmt.Sprintf("%05d", hash.Number),
-		" ", hash.Token,
-		" ", key,
-		" ", hash.Gen,
-		" ", hash.Owner,
-		" ", verified)
 }
 
 type Token struct {
@@ -44,13 +27,30 @@ type Token struct {
 	List    []CanonicalHash
 }
 
-func Hash(params ...interface{}) string {
+func ValidateHash(ch CanonicalHash, ph CanonicalHash) bool {
+	if ph.Token != ch.Token {
+		return false
+	}
+	n := ch.Sequence
+	key := ph.Key
+	hash := Hash(n, ph.Token, key)
+	if ch.Gen != hash {
+		return false
+	}
+	return true
+}
+
+func Digest(params ...interface{}) []byte {
 	var h string
 	for _, p := range params {
 		h += fmt.Sprint(p)
 	}
 	digest := md5.Sum([]byte(h))
-	return EncodeToString(digest[:])
+	return digest[:]
+}
+
+func Hash(params ...interface{}) string {
+	return EncodeToString(Digest(params))
 }
 
 func NextKey() string {
@@ -60,25 +60,27 @@ func NextKey() string {
 }
 
 func NewToken(data string) Token {
-	digest := md5.Sum([]byte(data))
-
 	return Token{
 		Data:   data,
-		Digest: EncodeToString(digest[:]),
+		Digest: Hash(data),
 		Key1:   "",
 		Key2:   NextKey(),
 		List:   make([]CanonicalHash, 0),
 	}
 }
 
+func (tok *Token) NextSequence() int32 {
+	return int32(len(tok.List) + 1)
+}
+
 func (tok *Token) Next() CanonicalHash {
 	var hash = CanonicalHash{}
-	hash.Number = int32(len(tok.List) + 1)
+	hash.Sequence = tok.NextSequence()
 	hash.Token = tok.Digest
 	hash.Key = tok.Key1
-	hash.Gen = Hash(hash.Number, tok.Digest, tok.Key2)
-	hash.Owner = Hash(hash.Number, tok.Digest, tok.LastGen)
-	//hash.Help = fmt.Sprint(hash.Number) + "_" + tok.Digest + "_" + tok.Key2
+	hash.Gen = Hash(hash.Sequence, tok.Digest, tok.Key2)
+	hash.Owner = Hash(hash.Sequence, tok.Digest, tok.LastGen)
+	//hash.Help = fmt.Sprint(hash.Sequence) + "_" + tok.Digest + "_" + tok.Key2
 	hash.Verified = false
 	tok.Key1 = tok.Key2
 	tok.Key2 = NextKey()
@@ -87,11 +89,7 @@ func (tok *Token) Next() CanonicalHash {
 	tok.List = append(tok.List, hash)
 	return hash
 }
-func (tok *Token) Print() {
-	for i := len(tok.List) - 1; i >= 0; i-- {
-		tok.List[i].Print()
-	}
-}
+
 func (tok *Token) Validate() bool {
 	var ph *CanonicalHash
 	for i := len(tok.List) - 1; i >= 0; i-- {
@@ -100,15 +98,35 @@ func (tok *Token) Validate() bool {
 			continue
 		}
 		var ch = &tok.List[i]
-		n := ch.Number
-		key := ph.Key
-		digest := tok.Digest
-		hash := Hash(n, digest, key)
-		if ch.Gen != hash {
+		ch.Verified = ValidateHash(*ch, *ph)
+		if ch.Verified != true {
 			return false
 		}
-		ch.Verified = true
 		ph = ch
 	}
 	return true
+}
+
+func ValidateList(hashes *list.List) bool {
+	var ph *CanonicalHash
+	for temp := hashes.Back(); temp != nil; temp = temp.Prev() {
+		if ph == nil {
+			ph = temp.Value.(*CanonicalHash)
+			continue
+		}
+		var ch = temp.Value.(*CanonicalHash)
+		ch.Verified = ValidateHash(*ch, *ph)
+		if ch.Verified != true {
+			return false
+		}
+		ph = ch
+	}
+	return true
+}
+
+func (tok *Token) LastHash() *CanonicalHash {
+	if len(tok.List) == 0 {
+		return nil
+	}
+	return &tok.List[len(tok.List)-1]
 }

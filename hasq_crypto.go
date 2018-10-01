@@ -9,7 +9,6 @@ import (
 	"crypto/x509"
 	"encoding/asn1"
 	"math/big"
-	"os"
 )
 
 type DeviceCrypto struct {
@@ -24,14 +23,6 @@ type SignatureKey struct {
 
 func (dk DeviceCrypto) Public() crypto.PublicKey {
 	return dk.Original.Public()
-}
-
-func (dk DeviceCrypto) Print(f *os.File) {
-	f.WriteString("PublicKey : " + dk.PublicKey)
-	f.Write([]byte{0x0A, 0x0D})
-	f.WriteString("PrivateKey: " + dk.PrivateKey)
-	f.Write([]byte{0x0A, 0x0D})
-	f.Sync()
 }
 
 func (dk DeviceCrypto) Sign(content []byte) string {

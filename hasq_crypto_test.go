@@ -65,3 +65,33 @@ func TestDeviceCrypto_Public(t *testing.T) {
 	t.Log("DIGEST: ", EncodeToString(key2.Digest(origin)))
 	key2.PrintTest(t)
 }
+
+func TestHashStore_Add(t *testing.T) {
+	store := NewStore()
+	c1 := NewClient()
+	tokenHash := c1.NewToken("TOKEN_CLIENT1")
+	ch := c1.AddHash(tokenHash)
+	if ch == nil {
+		t.Fatal("Can't add hash to client")
+	}
+	check := store.Add(ch)
+	if !check {
+		t.Error("Can't add hash to store")
+	}
+	check = store.Add(c1.AddHash(tokenHash))
+	if !check {
+		t.Error("Can't add hash to store")
+	}
+}
+
+func TestHashStore_Length(t *testing.T) {
+	store := NewStore()
+	c := NewClient()
+	hash := c.NewToken("T")
+	store.Add(c.AddHash(hash))
+	store.Add(c.AddHash(hash))
+	store.Add(c.AddHash(hash))
+	if store.Length(hash) != 3 {
+		t.Error("Store not contains 3 hashes")
+	}
+}
