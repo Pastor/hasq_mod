@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "ru.pastor.hashq_mod";
+option java_outer_classname = "HashService";
+
+package simple;
+
+service HashService {
+    rpc Create (HasqCreate) returns (HasqResult) {
+    }
+}
+
+message HasqCreate {
+    int32 sequence = 1;
+    string token = 2;
+    string key = 3;
+    string gen = 4;
+    string owner = 5;
+}
+
+message HasqResult {
+    bool verified = 1;
+}

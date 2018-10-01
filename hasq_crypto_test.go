@@ -95,3 +95,15 @@ func TestHashStore_Length(t *testing.T) {
 		t.Error("Store not contains 3 hashes")
 	}
 }
+
+func TestHashStore_Validate(t *testing.T) {
+	store := NewStore()
+	c := NewClient()
+	hash := c.NewToken("T")
+	store.Add(c.AddHash(hash))
+	store.Add(c.AddHash(hash))
+	store.Add(c.AddHash(hash))
+	if !store.Validate(hash) {
+		t.Error("Validate hash sequence exception")
+	}
+}
