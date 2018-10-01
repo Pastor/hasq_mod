@@ -7,11 +7,17 @@ option java_outer_classname = "HashService";
 package simple;
 
 service HashService {
-    rpc Create (HasqCreate) returns (HasqResult) {
+    rpc Create (HasqHash) returns (HasqResult) {
+    }
+    rpc Latest (HasqRequest) returns (HasqHash) {
     }
 }
 
-message HasqCreate {
+message HasqRequest {
+    string id = 1;
+}
+
+message HasqHash {
     int32 sequence = 1;
     string token = 2;
     string key = 3;

@@ -27,10 +27,18 @@ func (dk DeviceCrypto) Print(f *os.File) {
 	f.Sync()
 }
 
+func (hash CanonicalHash) Stringify() string {
+	key := hash.Key
+	if len(key) == 0 {
+		key = hash.EmptyKey()
+	}
+	return fmt.Sprintf("%05d %s %s %s", hash.Sequence, key, hash.Gen, hash.Owner)
+}
+
 func (hash CanonicalHash) Print() {
 	key := hash.Key
 	if len(key) == 0 {
-		key = "00000000000000000000000000000000"
+		key = hash.EmptyKey()
 	}
 	verified := "NotVerified"
 	if hash.Verified {

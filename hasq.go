@@ -65,8 +65,16 @@ func NewToken(data string) Token {
 		Digest: Hash(data),
 		Key1:   "",
 		Key2:   NextKey(),
-		List:   make([]CanonicalHash, 0),
+		Store:  make([]CanonicalHash, 0),
 	}
+}
+
+func (hash CanonicalHash) EmptyKey() string {
+	return "00000000000000000000000000000000"
+}
+
+func (hash CanonicalHash) IsEmpty() bool {
+	return hash.Key == hash.EmptyKey()
 }
 
 func (tok *Token) NextSequence() int32 {
@@ -129,4 +137,9 @@ func (tok *Token) LastHash() *CanonicalHash {
 		return nil
 	}
 	return &tok.List[len(tok.List)-1]
+}
+func (tok *Token) Add(sequence int32, key string, gen string, owner string) *CanonicalHash {
+	var hash = CanonicalHash{Sequence: sequence, Token: tok.Digest, Key: key, Gen: gen, Owner: owner, Verified: false}
+	tok.List = append(tok.List, hash)
+	return &hash
 }

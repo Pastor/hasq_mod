@@ -22,7 +22,46 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type HasqCreate struct {
+type HasqRequest struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *HasqRequest) Reset()         { *m = HasqRequest{} }
+func (m *HasqRequest) String() string { return proto.CompactTextString(m) }
+func (*HasqRequest) ProtoMessage()    {}
+func (*HasqRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8f3733d4161a6cce, []int{0}
+}
+
+func (m *HasqRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_HasqRequest.Unmarshal(m, b)
+}
+func (m *HasqRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_HasqRequest.Marshal(b, m, deterministic)
+}
+func (m *HasqRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HasqRequest.Merge(m, src)
+}
+func (m *HasqRequest) XXX_Size() int {
+	return xxx_messageInfo_HasqRequest.Size(m)
+}
+func (m *HasqRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_HasqRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HasqRequest proto.InternalMessageInfo
+
+func (m *HasqRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+type HasqHash struct {
 	Sequence             int32    `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
 	Token                string   `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
 	Key                  string   `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
@@ -33,60 +72,60 @@ type HasqCreate struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *HasqCreate) Reset()         { *m = HasqCreate{} }
-func (m *HasqCreate) String() string { return proto.CompactTextString(m) }
-func (*HasqCreate) ProtoMessage()    {}
-func (*HasqCreate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f3733d4161a6cce, []int{0}
+func (m *HasqHash) Reset()         { *m = HasqHash{} }
+func (m *HasqHash) String() string { return proto.CompactTextString(m) }
+func (*HasqHash) ProtoMessage()    {}
+func (*HasqHash) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8f3733d4161a6cce, []int{1}
 }
 
-func (m *HasqCreate) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_HasqCreate.Unmarshal(m, b)
+func (m *HasqHash) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_HasqHash.Unmarshal(m, b)
 }
-func (m *HasqCreate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_HasqCreate.Marshal(b, m, deterministic)
+func (m *HasqHash) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_HasqHash.Marshal(b, m, deterministic)
 }
-func (m *HasqCreate) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HasqCreate.Merge(m, src)
+func (m *HasqHash) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HasqHash.Merge(m, src)
 }
-func (m *HasqCreate) XXX_Size() int {
-	return xxx_messageInfo_HasqCreate.Size(m)
+func (m *HasqHash) XXX_Size() int {
+	return xxx_messageInfo_HasqHash.Size(m)
 }
-func (m *HasqCreate) XXX_DiscardUnknown() {
-	xxx_messageInfo_HasqCreate.DiscardUnknown(m)
+func (m *HasqHash) XXX_DiscardUnknown() {
+	xxx_messageInfo_HasqHash.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_HasqCreate proto.InternalMessageInfo
+var xxx_messageInfo_HasqHash proto.InternalMessageInfo
 
-func (m *HasqCreate) GetSequence() int32 {
+func (m *HasqHash) GetSequence() int32 {
 	if m != nil {
 		return m.Sequence
 	}
 	return 0
 }
 
-func (m *HasqCreate) GetToken() string {
+func (m *HasqHash) GetToken() string {
 	if m != nil {
 		return m.Token
 	}
 	return ""
 }
 
-func (m *HasqCreate) GetKey() string {
+func (m *HasqHash) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *HasqCreate) GetGen() string {
+func (m *HasqHash) GetGen() string {
 	if m != nil {
 		return m.Gen
 	}
 	return ""
 }
 
-func (m *HasqCreate) GetOwner() string {
+func (m *HasqHash) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
@@ -104,7 +143,7 @@ func (m *HasqResult) Reset()         { *m = HasqResult{} }
 func (m *HasqResult) String() string { return proto.CompactTextString(m) }
 func (*HasqResult) ProtoMessage()    {}
 func (*HasqResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f3733d4161a6cce, []int{1}
+	return fileDescriptor_8f3733d4161a6cce, []int{2}
 }
 
 func (m *HasqResult) XXX_Unmarshal(b []byte) error {
@@ -133,29 +172,32 @@ func (m *HasqResult) GetVerified() bool {
 }
 
 func init() {
-	proto.RegisterType((*HasqCreate)(nil), "simple.HasqCreate")
+	proto.RegisterType((*HasqRequest)(nil), "simple.HasqRequest")
+	proto.RegisterType((*HasqHash)(nil), "simple.HasqHash")
 	proto.RegisterType((*HasqResult)(nil), "simple.HasqResult")
 }
 
 func init() { proto.RegisterFile("hasq_simple.proto", fileDescriptor_8f3733d4161a6cce) }
 
 var fileDescriptor_8f3733d4161a6cce = []byte{
-	// 225 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x54, 0x90, 0xb1, 0x4e, 0xc3, 0x30,
-	0x10, 0x86, 0x09, 0x25, 0x51, 0x39, 0x16, 0x30, 0x0c, 0x56, 0xa7, 0x2a, 0x62, 0xc8, 0x94, 0xa1,
-	0x3c, 0x01, 0x65, 0xe9, 0x88, 0xc2, 0x03, 0x54, 0xa6, 0xfd, 0x69, 0xa2, 0xb6, 0x76, 0xec, 0x73,
-	0x0a, 0xbc, 0x3d, 0xb2, 0x5d, 0x05, 0xd8, 0xfc, 0x7d, 0xd2, 0xdd, 0xef, 0xff, 0xe8, 0xae, 0x55,
-	0x6c, 0xd7, 0xdc, 0x1d, 0xfb, 0x03, 0xea, 0xde, 0x19, 0x6f, 0x44, 0x91, 0xa8, 0xfc, 0x22, 0x5a,
-	0x29, 0xb6, 0x2f, 0x0e, 0xca, 0x43, 0xcc, 0x68, 0xca, 0xb0, 0x03, 0xf4, 0x06, 0x32, 0x9b, 0x67,
-	0x55, 0xde, 0x8c, 0x2c, 0x1e, 0x28, 0xf7, 0x66, 0x0f, 0x2d, 0x2f, 0xe7, 0x59, 0x75, 0xdd, 0x24,
-	0x10, 0xb7, 0x34, 0xd9, 0xe3, 0x5b, 0x4e, 0xa2, 0x0b, 0xcf, 0x60, 0x76, 0xd0, 0xf2, 0x2a, 0x99,
-	0x1d, 0x74, 0x98, 0x34, 0x9f, 0x1a, 0x4e, 0xe6, 0x69, 0x32, 0x42, 0x59, 0xa5, 0xe4, 0x06, 0x3c,
-	0x1c, 0x7c, 0x48, 0x3e, 0xc1, 0x75, 0x1f, 0x1d, 0xb6, 0x31, 0x79, 0xda, 0x8c, 0xbc, 0x78, 0xa6,
-	0x9b, 0x95, 0xe2, 0xf6, 0x0d, 0xee, 0xd4, 0x6d, 0x20, 0x16, 0x54, 0x9c, 0xbf, 0x2b, 0xea, 0x73,
-	0xa7, 0xdf, 0x0a, 0xb3, 0x7f, 0x2e, 0x2d, 0x2f, 0x2f, 0x96, 0x8f, 0x74, 0xef, 0x86, 0xba, 0x57,
-	0xec, 0x8d, 0xab, 0x5b, 0xc5, 0xad, 0x5d, 0x1f, 0xcd, 0x76, 0xf9, 0x77, 0xef, 0x6b, 0xf6, 0x5e,
-	0xc4, 0xdb, 0x3c, 0xfd, 0x04, 0x00, 0x00, 0xff, 0xff, 0x3d, 0x61, 0x1d, 0x1a, 0x30, 0x01, 0x00,
-	0x00,
+	// 261 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x90, 0x4d, 0x4e, 0xc3, 0x30,
+	0x10, 0x85, 0x9b, 0x94, 0x44, 0x61, 0x90, 0x50, 0x71, 0x59, 0x44, 0x91, 0x90, 0x90, 0xc5, 0xa2,
+	0xab, 0x88, 0x9f, 0x1b, 0x94, 0x4d, 0x17, 0x2c, 0x50, 0x38, 0x40, 0x65, 0x9a, 0xa1, 0xb6, 0xda,
+	0xda, 0x89, 0xc7, 0x09, 0xe2, 0xf6, 0xc8, 0x36, 0x54, 0x45, 0xec, 0xfc, 0xbd, 0xf9, 0xf1, 0x7b,
+	0x03, 0x57, 0x52, 0x50, 0xbf, 0x26, 0x75, 0xe8, 0xf6, 0x58, 0x77, 0xd6, 0x38, 0xc3, 0xf2, 0x48,
+	0xfc, 0x06, 0x2e, 0x56, 0x82, 0xfa, 0x06, 0xfb, 0x01, 0xc9, 0xb1, 0x4b, 0x48, 0x55, 0x5b, 0x26,
+	0xb7, 0xc9, 0xe2, 0xbc, 0x49, 0x55, 0xcb, 0x47, 0x28, 0x7c, 0x79, 0x25, 0x48, 0xb2, 0x0a, 0x0a,
+	0xf2, 0x6d, 0x7a, 0x83, 0xa1, 0x23, 0x6b, 0x8e, 0xcc, 0xae, 0x21, 0x73, 0x66, 0x87, 0xba, 0x4c,
+	0xc3, 0x68, 0x04, 0x36, 0x83, 0xe9, 0x0e, 0xbf, 0xca, 0x69, 0xd0, 0xfc, 0xd3, 0x2b, 0x5b, 0xd4,
+	0xe5, 0x59, 0x54, 0xb6, 0xa8, 0xfd, 0xa4, 0xf9, 0xd4, 0x68, 0xcb, 0x2c, 0x4e, 0x06, 0xe0, 0x0b,
+	0x80, 0x68, 0x8b, 0x86, 0xbd, 0xf3, 0x3f, 0x8f, 0x68, 0xd5, 0x87, 0xc2, 0xe8, 0xad, 0x68, 0x8e,
+	0xfc, 0x68, 0x43, 0x00, 0xf9, 0x86, 0x76, 0x54, 0x1b, 0x64, 0xf7, 0x90, 0x3f, 0x5b, 0x14, 0x0e,
+	0xd9, 0xac, 0xfe, 0x09, 0xfc, 0x1b, 0xa0, 0x62, 0xa7, 0x4a, 0x5c, 0xcd, 0x27, 0xec, 0x01, 0xf2,
+	0x17, 0xe1, 0x7c, 0xf8, 0xf9, 0xdf, 0x7a, 0xb8, 0x48, 0xf5, 0x6f, 0x0d, 0x9f, 0x2c, 0xef, 0x60,
+	0x6e, 0x87, 0xba, 0x13, 0xe4, 0x8c, 0xad, 0xa5, 0x20, 0xd9, 0xaf, 0x0f, 0xa6, 0x5d, 0x9e, 0x1a,
+	0x79, 0x4d, 0xde, 0xf3, 0x70, 0xe9, 0xa7, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0xc6, 0xec, 0xbc,
+	0xb7, 0x7e, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -170,7 +212,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type HashServiceClient interface {
-	Create(ctx context.Context, in *HasqCreate, opts ...grpc.CallOption) (*HasqResult, error)
+	Create(ctx context.Context, in *HasqHash, opts ...grpc.CallOption) (*HasqResult, error)
+	Latest(ctx context.Context, in *HasqRequest, opts ...grpc.CallOption) (*HasqHash, error)
 }
 
 type hashServiceClient struct {
@@ -181,7 +224,7 @@ func NewHashServiceClient(cc *grpc.ClientConn) HashServiceClient {
 	return &hashServiceClient{cc}
 }
 
-func (c *hashServiceClient) Create(ctx context.Context, in *HasqCreate, opts ...grpc.CallOption) (*HasqResult, error) {
+func (c *hashServiceClient) Create(ctx context.Context, in *HasqHash, opts ...grpc.CallOption) (*HasqResult, error) {
 	out := new(HasqResult)
 	err := c.cc.Invoke(ctx, "/simple.HashService/Create", in, out, opts...)
 	if err != nil {
@@ -190,9 +233,19 @@ func (c *hashServiceClient) Create(ctx context.Context, in *HasqCreate, opts ...
 	return out, nil
 }
 
+func (c *hashServiceClient) Latest(ctx context.Context, in *HasqRequest, opts ...grpc.CallOption) (*HasqHash, error) {
+	out := new(HasqHash)
+	err := c.cc.Invoke(ctx, "/simple.HashService/Latest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HashServiceServer is the server API for HashService service.
 type HashServiceServer interface {
-	Create(context.Context, *HasqCreate) (*HasqResult, error)
+	Create(context.Context, *HasqHash) (*HasqResult, error)
+	Latest(context.Context, *HasqRequest) (*HasqHash, error)
 }
 
 func RegisterHashServiceServer(s *grpc.Server, srv HashServiceServer) {
@@ -200,7 +253,7 @@ func RegisterHashServiceServer(s *grpc.Server, srv HashServiceServer) {
 }
 
 func _HashService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HasqCreate)
+	in := new(HasqHash)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -212,7 +265,25 @@ func _HashService_Create_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/simple.HashService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HashServiceServer).Create(ctx, req.(*HasqCreate))
+		return srv.(HashServiceServer).Create(ctx, req.(*HasqHash))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HashService_Latest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HasqRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HashServiceServer).Latest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/simple.HashService/Latest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HashServiceServer).Latest(ctx, req.(*HasqRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -224,6 +295,10 @@ var _HashService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _HashService_Create_Handler,
+		},
+		{
+			MethodName: "Latest",
+			Handler:    _HashService_Latest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

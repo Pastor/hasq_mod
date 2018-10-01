@@ -19,6 +19,16 @@ func (c *Client) NewToken(data string) string {
 	return hash
 }
 
+func (c *Client) RegisterToken(hash string, key1 string, key2 string, gen string, owner string) {
+	c.Tokens[hash] = &Token{
+		List:    make([]CanonicalHash, 0),
+		Digest:  hash,
+		Key1:    key1,
+		Key2:    key2,
+		LastGen: gen,
+	}
+}
+
 func (c *Client) AddHash(hash string) *CanonicalHash {
 	token := c.Tokens[hash]
 	if token == nil {
@@ -26,4 +36,12 @@ func (c *Client) AddHash(hash string) *CanonicalHash {
 	}
 	ch := token.Next()
 	return &ch
+}
+
+func (c *Client) RegisterHash(sequence int32, token string, key string, gen string, owner string) *CanonicalHash {
+	t := c.Tokens[token]
+	if t == nil {
+		return nil
+	}
+	return t.Add(sequence, key, gen, owner)
 }
