@@ -1,10 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"container/list"
 	"crypto/md5"
 	"fmt"
+	"log"
 	"math/rand"
+	"os"
+	"strconv"
+	"strings"
 )
 
 type CanonicalHash struct {
@@ -19,12 +24,13 @@ type CanonicalHash struct {
 }
 
 type Token struct {
-	Data    string
-	Digest  string
-	Key1    string
-	Key2    string
-	LastGen string
-	List    []CanonicalHash
+	Sequence int32
+	Data     string
+	Digest   string
+	Key1     string
+	Key2     string
+	LastGen  string
+	List     []CanonicalHash
 }
 
 func ValidateHash(ch CanonicalHash, ph CanonicalHash) bool {
@@ -65,20 +71,22 @@ func NewToken(data string) Token {
 		Digest: Hash(data),
 		Key1:   "",
 		Key2:   NextKey(),
-		Store:  make([]CanonicalHash, 0),
+		List:   make([]CanonicalHash, 0),
 	}
 }
 
-func (hash CanonicalHash) EmptyKey() string {
+func EmptyKey() string {
 	return "00000000000000000000000000000000"
 }
 
 func (hash CanonicalHash) IsEmpty() bool {
-	return hash.Key == hash.EmptyKey()
+	return hash.Key == EmptyKey()
 }
 
 func (tok *Token) NextSequence() int32 {
-	return int32(len(tok.List) + 1)
+	sequence := int32(len(tok.List) + 1)
+	tok.Sequence = sequence
+	return sequence
 }
 
 func (tok *Token) Next() CanonicalHash {
@@ -93,7 +101,6 @@ func (tok *Token) Next() CanonicalHash {
 	tok.Key1 = tok.Key2
 	tok.Key2 = NextKey()
 	tok.LastGen = hash.Gen
-
 	tok.List = append(tok.List, hash)
 	return hash
 }
@@ -113,6 +120,51 @@ func (tok *Token) Validate() bool {
 		ph = ch
 	}
 	return true
+}
+
+func StoreToken(tok *Token) bool {
+	file, err := os.Create(tok.Digest + ".tok")
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	defer file.Close()
+	writer := bufio.NewWriter(file)
+	_, _ = fmt.Fprintf(writer, "%05d %s %s %s %s\n", tok.Sequence, tok.Key1, tok.Key2, tok.LastGen, tok.Data)
+	_ = writer.Flush()
+	return true
+}
+
+func LoadToken(hash string) *Token {
+	file, err := os.Open(hash + ".tok")
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Fields(line)
+		if len(parts) < 4 {
+			log.Println("Error parse line \"", line, "\"")
+			continue
+		}
+		n, _ := strconv.ParseInt(parts[0], 10, 32)
+		tok := Token{
+			Sequence: int32(n),
+			Digest:   hash,
+			Key1:     parts[1],
+			Key2:     parts[2],
+			LastGen:  parts[3],
+			Data:     parts[4],
+		}
+		if tok.Key1 == EmptyKey() {
+			tok.Key1 = ""
+		}
+		return &tok
+	}
+	return nil
 }
 
 func ValidateList(hashes *list.List) bool {

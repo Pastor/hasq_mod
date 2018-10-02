@@ -23,17 +23,17 @@ func DecodeFromString(data string) []byte {
 }
 
 func (dk DeviceCrypto) Print(f *os.File) {
-	f.WriteString("PublicKey : " + dk.PublicKey)
-	f.Write([]byte{0x0A, 0x0D})
-	f.WriteString("PrivateKey: " + dk.PrivateKey)
-	f.Write([]byte{0x0A, 0x0D})
-	f.Sync()
+	_, _ = f.WriteString("PublicKey : " + dk.PublicKey)
+	_, _ = f.Write([]byte{0x0A, 0x0D})
+	_, _ = f.WriteString("PrivateKey: " + dk.PrivateKey)
+	_, _ = f.Write([]byte{0x0A, 0x0D})
+	_ = f.Sync()
 }
 
 func (hash CanonicalHash) Stringify() string {
 	key := hash.Key
 	if len(key) == 0 {
-		key = hash.EmptyKey()
+		key = EmptyKey()
 	}
 	return fmt.Sprintf("%05d %s %s %s", hash.Sequence, key, hash.Gen, hash.Owner)
 }
@@ -41,7 +41,7 @@ func (hash CanonicalHash) Stringify() string {
 func (hash CanonicalHash) Print() {
 	key := hash.Key
 	if len(key) == 0 {
-		key = hash.EmptyKey()
+		key = EmptyKey()
 	}
 	verified := "NotVerified"
 	if hash.Verified {
@@ -120,14 +120,14 @@ func Unzip(src string, dest string) ([]string, error) {
 		if err != nil {
 			return filenames, err
 		}
-		defer rc.Close()
+		rc.Close()
 		fpath := filepath.Join(dest, f.Name)
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
 			return filenames, fmt.Errorf("%s: illegal file path", fpath)
 		}
 		filenames = append(filenames, fpath)
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(fpath, os.ModePerm)
+			_ = os.MkdirAll(fpath, os.ModePerm)
 		} else {
 			if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
 				return filenames, err

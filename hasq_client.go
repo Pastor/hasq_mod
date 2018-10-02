@@ -1,5 +1,10 @@
 package main
 
+import (
+	"io/ioutil"
+	"strings"
+)
+
 type Client struct {
 	Tokens map[string]*Token
 }
@@ -8,11 +13,39 @@ func NewClient() Client {
 	return Client{Tokens: make(map[string]*Token)}
 }
 
+func (c *Client) LoadTokens() bool {
+	files, err := ioutil.ReadDir(".")
+	if err != nil {
+		return false
+	}
+	for _, f := range files {
+		name := f.Name()
+		index := strings.Index(name, ".tok")
+		if index <= -1 {
+			continue
+		}
+		w := string(name[0:index])
+		token := LoadToken(w)
+		if token == nil {
+			continue
+		}
+		c.Tokens[w] = token
+	}
+	return true
+}
+
+func (c *Client) StoreTokens() bool {
+	for _, v := range c.Tokens {
+		StoreToken(v)
+	}
+	return true
+}
+
 func (c *Client) NewToken(data string) string {
 	hash := Hash(data)
 	token := c.Tokens[hash]
 	if token != nil {
-		return ""
+		return token.Digest
 	}
 	newToken := NewToken(data)
 	c.Tokens[hash] = &newToken

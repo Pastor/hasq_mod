@@ -26,7 +26,7 @@ func NewSimpleClient(address string) SimpleClient {
 }
 
 func (sc *SimpleClient) Close() {
-	sc.Connection.Close()
+	_ = sc.Connection.Close()
 	sc.Cancel()
 }
 

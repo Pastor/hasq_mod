@@ -42,7 +42,7 @@ func (dk DeviceCrypto) Sign(content []byte) string {
 func (dk DeviceCrypto) Verify(pub crypto.PublicKey, content []byte, signature []byte) bool {
 	var sig SignatureKey
 	digest := dk.Digest(content)
-	asn1.Unmarshal(signature, &sig)
+	_, _ = asn1.Unmarshal(signature, &sig)
 	if pub == nil {
 		pub = dk.Public()
 	}

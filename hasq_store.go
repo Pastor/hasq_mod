@@ -40,9 +40,9 @@ func (store *HashStore) StoreHash(hash string) bool {
 	writer := bufio.NewWriter(file)
 	for temp := hashes.Front(); temp != nil; temp = temp.Next() {
 		ch := temp.Value.(*CanonicalHash)
-		fmt.Fprintf(writer, "%s\n", ch.Stringify())
+		_, _ = fmt.Fprintf(writer, "%s\n", ch.Stringify())
 	}
-	writer.Flush()
+	_ = writer.Flush()
 	return true
 }
 

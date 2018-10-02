@@ -34,17 +34,19 @@ func main() {
 		sc := NewSimpleClient(address)
 		defer sc.Close()
 		c := NewClient()
+		c.LoadTokens()
 		tokenHash := c.NewToken(data)
 		for i := 0; i < count; i++ {
 			hash := c.AddHash(tokenHash)
 			verified := sc.CreateHash(hash.Sequence, hash.Token, hash.Key, hash.Gen, hash.Owner)
 			log.Println("Verified: ", verified)
 		}
+		c.StoreTokens()
 	} else if mode == "client" {
 		sc := NewSimpleClient(address)
 		defer sc.Close()
 		c := NewClient()
-
+		c.LoadTokens()
 		latestHash := sc.LatestHash(clientToken)
 		if latestHash == nil {
 			log.Fatal("Token not found")
@@ -60,6 +62,7 @@ func main() {
 		hash := c.AddHash(tokenHash)
 		verified := sc.CreateHash(hash.Sequence, hash.Token, hash.Key, hash.Gen, hash.Owner)
 		log.Println("Verified: ", verified)
+		c.StoreTokens()
 	} else if mode == "service" {
 		log.Println("Starting ", address, " ...")
 		StartService(address, &store)
