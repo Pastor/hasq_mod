@@ -5,6 +5,17 @@ import (
 	"testing"
 )
 
+func TestMemoryHashSequence_Add(t *testing.T) {
+	sequence := NewMemoryHashSequence()
+	tok := NewToken("DATA")
+	sequence.Add(tok.Next())
+	sequence.Add(tok.Next())
+	sequence.Add(tok.Next())
+	if sequence.Length() != 3 {
+		t.Fatal("Sequence not have three elements")
+	}
+}
+
 func TestServer_Create(t *testing.T) {
 	address := "127.0.0.1:59090"
 	sc := NewSimpleClient(address)
@@ -24,6 +35,7 @@ func TestServer_Create(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	go StartService("127.0.0.1:59090")
+	store := NewStore()
+	go StartService("127.0.0.1:59090", &store)
 	os.Exit(m.Run())
 }

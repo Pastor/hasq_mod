@@ -2,11 +2,8 @@ package main
 
 import (
 	"bufio"
-	"container/list"
-	"crypto/md5"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -31,38 +28,6 @@ type Token struct {
 	Key2     string
 	LastGen  string
 	List     []CanonicalHash
-}
-
-func ValidateHash(ch CanonicalHash, ph CanonicalHash) bool {
-	if ph.Token != ch.Token {
-		return false
-	}
-	n := ch.Sequence
-	key := ph.Key
-	hash := Hash(n, ph.Token, key)
-	if ch.Gen != hash {
-		return false
-	}
-	return true
-}
-
-func Digest(params ...interface{}) []byte {
-	var h string
-	for _, p := range params {
-		h += fmt.Sprint(p)
-	}
-	digest := md5.Sum([]byte(h))
-	return digest[:]
-}
-
-func Hash(params ...interface{}) string {
-	return EncodeToString(Digest(params))
-}
-
-func NextKey() string {
-	r := make([]byte, 16)
-	rand.Read(r)
-	return EncodeToString(r)
 }
 
 func NewToken(data string) Token {
@@ -165,23 +130,6 @@ func LoadToken(hash string) *Token {
 		return &tok
 	}
 	return nil
-}
-
-func ValidateList(hashes *list.List) bool {
-	var ph *CanonicalHash
-	for temp := hashes.Back(); temp != nil; temp = temp.Prev() {
-		if ph == nil {
-			ph = temp.Value.(*CanonicalHash)
-			continue
-		}
-		var ch = temp.Value.(*CanonicalHash)
-		ch.Verified = ValidateHash(*ch, *ph)
-		if ch.Verified != true {
-			return false
-		}
-		ph = ch
-	}
-	return true
 }
 
 func (tok *Token) LastHash() *CanonicalHash {
