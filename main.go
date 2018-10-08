@@ -19,9 +19,9 @@ func main() {
 
 	flag.StringVar(&service, "service_type", "simple", "Only [simple | mod] service type")
 	flag.StringVar(&address, "address", "127.0.0.1:59090", "Bind address")
-	flag.StringVar(&mode, "mode", "testing", "Only [client | service | testing]")
+	flag.StringVar(&mode, "mode", "testing", "Only [client | service | testing | selftest]")
 	flag.StringVar(&data, "data", "Simple_Token_Data", "Token data")
-	flag.IntVar(&count, "count", 10, "Count")
+	flag.IntVar(&count, "count", 100, "Count")
 	flag.StringVar(&clientKey, "c_key", "empty", "Client private key")
 	flag.StringVar(&clientGen, "c_gen", "empty", "Client generation")
 	flag.StringVar(&clientToken, "c_tok", "empty", "Client token")
@@ -29,7 +29,17 @@ func main() {
 
 	store := NewStore()
 	store.LoadAll()
-	if mode == "testing" {
+	if mode == "selftest" {
+		c := NewClient()
+		c.LoadTokens()
+		tokenHash := c.NewToken(data)
+		for i := 0; i < count; i++ {
+			hash := c.AddHash(tokenHash)
+			verified := store.Add(hash)
+			log.Println("Verified: ", verified)
+		}
+		c.StoreTokens()
+	} else if mode == "testing" {
 		go StartService(address, &store)
 		sc := NewSimpleClient(address)
 		defer sc.Close()

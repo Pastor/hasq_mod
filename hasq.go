@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"log"
 	"os"
@@ -27,7 +28,7 @@ type Token struct {
 	Key1     string
 	Key2     string
 	LastGen  string
-	List     []CanonicalHash
+	List     *list.List
 }
 
 func NewToken(data string) Token {
@@ -36,7 +37,7 @@ func NewToken(data string) Token {
 		Digest: Hash(data),
 		Key1:   "",
 		Key2:   NextKey(),
-		List:   make([]CanonicalHash, 0),
+		List:   list.New(),
 	}
 }
 
@@ -49,7 +50,7 @@ func (hash CanonicalHash) IsEmpty() bool {
 }
 
 func (tok *Token) NextSequence() int32 {
-	sequence := int32(len(tok.List) + 1)
+	sequence := int32(tok.List.Len() + 1)
 	tok.Sequence = sequence
 	return sequence
 }
@@ -66,18 +67,18 @@ func (tok *Token) Next() CanonicalHash {
 	tok.Key1 = tok.Key2
 	tok.Key2 = NextKey()
 	tok.LastGen = hash.Gen
-	tok.List = append(tok.List, hash)
+	tok.List.PushBack(&hash)
 	return hash
 }
 
 func (tok *Token) Validate() bool {
 	var ph *CanonicalHash
-	for i := len(tok.List) - 1; i >= 0; i-- {
+	for temp := tok.List.Back(); temp != nil; temp = temp.Prev() {
 		if ph == nil {
-			ph = &tok.List[i]
+			ph = temp.Value.(*CanonicalHash)
 			continue
 		}
-		var ch = &tok.List[i]
+		var ch = temp.Value.(*CanonicalHash)
 		ch.Verified = ValidateHash(*ch, *ph)
 		if ch.Verified != true {
 			return false
@@ -123,23 +124,55 @@ func LoadToken(hash string) *Token {
 			Key2:     parts[2],
 			LastGen:  parts[3],
 			Data:     parts[4],
+			List:     list.New(),
 		}
 		if tok.Key1 == EmptyKey() {
 			tok.Key1 = ""
 		}
+		LoadHash(hash, func(hash CanonicalHash) {
+			tok.List.PushBack(&hash)
+		})
+		tok.Validate()
 		return &tok
 	}
 	return nil
 }
 
 func (tok *Token) LastHash() *CanonicalHash {
-	if len(tok.List) == 0 {
-		return nil
-	}
-	return &tok.List[len(tok.List)-1]
+	return tok.List.Back().Value.(*CanonicalHash)
 }
 func (tok *Token) Add(sequence int32, key string, gen string, owner string) *CanonicalHash {
 	var hash = CanonicalHash{Sequence: sequence, Token: tok.Digest, Key: key, Gen: gen, Owner: owner, Verified: false}
-	tok.List = append(tok.List, hash)
+	tok.List.PushBack(&hash)
 	return &hash
+}
+
+func LoadHash(hash string, appender func(CanonicalHash)) {
+	file, err := os.Open(hash + ".hasq")
+	if err != nil {
+		log.Println(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Fields(line)
+		if len(parts) < 4 {
+			log.Println("Error parse line \"", line, "\"")
+			continue
+		}
+		n, _ := strconv.ParseInt(parts[0], 10, 32)
+		hash := CanonicalHash{
+			Sequence: int32(n),
+			Token:    hash,
+			Key:      parts[1],
+			Gen:      parts[2],
+			Owner:    parts[3],
+			Verified: false,
+		}
+		if hash.IsEmpty() {
+			hash.Key = ""
+		}
+		appender(hash)
+	}
 }

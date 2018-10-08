@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/list"
 	"io/ioutil"
 	"strings"
 )
@@ -54,7 +55,7 @@ func (c *Client) NewToken(data string) string {
 
 func (c *Client) RegisterToken(hash string, key1 string, key2 string, gen string, owner string) {
 	c.Tokens[hash] = &Token{
-		List:    make([]CanonicalHash, 0),
+		List:    list.New(),
 		Digest:  hash,
 		Key1:    key1,
 		Key2:    key2,

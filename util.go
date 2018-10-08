@@ -57,8 +57,8 @@ func (hash CanonicalHash) Print() {
 }
 
 func (tok *Token) Print() {
-	for i := len(tok.List) - 1; i >= 0; i-- {
-		tok.List[i].Print()
+	for temp := tok.List.Back(); temp != nil; temp = temp.Prev() {
+		temp.Value.(*CanonicalHash).Print()
 	}
 }
 

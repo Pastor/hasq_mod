@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -31,7 +30,7 @@ func (store *HashStore) StoreHash(hash string) bool {
 	if hashes == nil {
 		return false
 	}
-	file, err := os.Create(hash + ".hash")
+	file, err := os.Create(hash + ".hasq")
 	if err != nil {
 		log.Println(err)
 		return false
@@ -53,7 +52,7 @@ func (store *HashStore) LoadAll() bool {
 	}
 	for _, f := range files {
 		name := f.Name()
-		index := strings.Index(name, ".hash")
+		index := strings.Index(name, ".hasq")
 		if index <= -1 {
 			continue
 		}
@@ -69,35 +68,9 @@ func (store *HashStore) LoadHash(hash string) bool {
 		log.Println("Hash already exists")
 		return false
 	}
-	//store.IndexToken[hash].PushBack(ch)
-	file, err := os.Open(hash + ".hash")
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Fields(line)
-		if len(parts) < 4 {
-			log.Println("Error parse line \"", line, "\"")
-			continue
-		}
-		n, _ := strconv.ParseInt(parts[0], 10, 32)
-		hash := CanonicalHash{
-			Sequence: int32(n),
-			Token:    hash,
-			Key:      parts[1],
-			Gen:      parts[2],
-			Owner:    parts[3],
-			Verified: false,
-		}
-		if hash.IsEmpty() {
-			hash.Key = ""
-		}
+	LoadHash(hash, func(hash CanonicalHash) {
 		store.Add(&hash)
-	}
+	})
 	return store.Validate(hash)
 }
 
