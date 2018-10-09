@@ -23,12 +23,12 @@ func TestServer_Create(t *testing.T) {
 	c := NewClient()
 	tokenHash := c.NewToken("SIMPLE_TOKEN")
 	hash := c.AddHash(tokenHash)
-	verified := sc.CreateHash(hash.Sequence, hash.Token, hash.Key, hash.Gen, hash.Owner)
+	verified := sc.CreateHash(hash)
 	if !verified {
 		t.Error("Error create first hash")
 	}
 	hash = c.AddHash(tokenHash)
-	verified = sc.CreateHash(hash.Sequence, hash.Token, hash.Key, hash.Gen, hash.Owner)
+	verified = sc.CreateHash(hash)
 	if !verified {
 		t.Error("Error create second hash")
 	}

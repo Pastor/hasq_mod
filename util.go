@@ -38,6 +38,14 @@ func (hash CanonicalHash) Stringify() string {
 	return fmt.Sprintf("%05d %s %s %s", hash.Sequence, key, hash.Gen, hash.Owner)
 }
 
+func (hash CanonicalHash) StringifyWithDigest() string {
+	key := hash.Key
+	if len(key) == 0 {
+		key = EmptyKey()
+	}
+	return fmt.Sprintf("%05d %s %s %s %s", hash.Sequence, hash.Token, key, hash.Gen, hash.Owner)
+}
+
 func (hash CanonicalHash) Print() {
 	key := hash.Key
 	if len(key) == 0 {

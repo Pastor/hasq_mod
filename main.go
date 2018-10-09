@@ -37,9 +37,13 @@ func main() {
 			hash := c.AddHash(tokenHash)
 			verified := store.Add(hash)
 			log.Println("Verified: ", verified)
+			if !verified {
+				break
+			}
 		}
 		c.StoreTokens()
 	} else if mode == "testing" {
+		var verified bool
 		go StartService(address, &store)
 		sc := NewSimpleClient(address)
 		defer sc.Close()
@@ -48,31 +52,15 @@ func main() {
 		tokenHash := c.NewToken(data)
 		for i := 0; i < count; i++ {
 			hash := c.AddHash(tokenHash)
-			verified := sc.CreateHash(hash.Sequence, hash.Token, hash.Key, hash.Gen, hash.Owner)
+			verified = sc.CreateHash(hash)
 			log.Println("Verified: ", verified)
+			if !verified {
+				break
+			}
 		}
-		c.StoreTokens()
-	} else if mode == "client" {
-		sc := NewSimpleClient(address)
-		defer sc.Close()
-		c := NewClient()
-		c.LoadTokens()
-		latestHash := sc.LatestHash(clientToken)
-		if latestHash == nil {
-			log.Fatal("Token not found")
+		if verified {
+			c.StoreTokens()
 		}
-		if clientKey == "empty" {
-			log.Fatal("Key not defined")
-		}
-		if clientGen == "empty" {
-			log.Fatal("Gen not defined")
-		}
-
-		tokenHash := c.NewToken(data)
-		hash := c.AddHash(tokenHash)
-		verified := sc.CreateHash(hash.Sequence, hash.Token, hash.Key, hash.Gen, hash.Owner)
-		log.Println("Verified: ", verified)
-		c.StoreTokens()
 	} else if mode == "service" {
 		log.Println("Starting ", address, " ...")
 		StartService(address, &store)

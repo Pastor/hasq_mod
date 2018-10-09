@@ -77,9 +77,9 @@ func (store *HashStore) LoadHash(hash string) bool {
 func (store *HashStore) Add(ch *CanonicalHash) bool {
 	hashes := store.IndexToken[ch.Token]
 	if hashes == nil {
-		if len(ch.Key) != 0 {
-			return false
-		}
+		//if !ch.IsEmpty() || len(ch.Key) != 0 {
+		//	return false
+		//}
 		store.IndexToken[ch.Token] = list.New()
 		store.IndexToken[ch.Token].PushBack(ch)
 		return true

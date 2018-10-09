@@ -1,42 +1,77 @@
 package main
 
 import (
-	"context"
+	"bufio"
 	"log"
 	"net"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"strconv"
+	"strings"
 )
 
-type Server struct {
-	Store *HashStore
-}
+type Server struct{}
 
-func (s *Server) Create(ctx context.Context, in *HasqHash) (*HasqResult, error) {
-	hash := CanonicalHash{Sequence: in.Sequence, Token: in.Token, Key: in.Key, Gen: in.Gen, Owner: in.Owner}
-	verified := s.Store.Add(&hash)
-	return &HasqResult{Verified: verified}, nil
-}
-
-func (s *Server) Latest(ctx context.Context, request *HasqRequest) (*HasqHash, error) {
-	hashes := s.Store.IndexToken[request.Id]
-	if hashes != nil && hashes.Back() != nil {
-		back := hashes.Back().Value.(*CanonicalHash)
-		return &HasqHash{Key: back.Key, Gen: back.Gen, Token: back.Token, Owner: back.Owner, Sequence: back.Sequence}, nil
-	}
-	return nil, nil
-}
-
-func StartService(address string, store *HashStore) {
-	lis, err := net.Listen("tcp", address)
+func StartService(address string, store *HashStore) error {
+	log.Printf("starting server on %v\n", address)
+	listener, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return err
 	}
-	s := grpc.NewServer()
-	RegisterHashServiceServer(s, &Server{store})
-	reflection.Register(s)
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	defer listener.Close()
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Printf("error accepting connection %v", err)
+			continue
+		}
+		log.Printf("accepted connection from %v", conn.RemoteAddr())
+		HandleClient(store, conn) //TODO: Implement me
 	}
+}
+
+func HandleClient(store *HashStore, conn net.Conn) error {
+	defer func() {
+		log.Printf("closing connection from %v", conn.RemoteAddr())
+		conn.Close()
+	}()
+	r := bufio.NewReader(conn)
+	w := bufio.NewWriter(conn)
+	scanr := bufio.NewScanner(r)
+	for {
+		scanned := scanr.Scan()
+		if !scanned {
+			if err := scanr.Err(); err != nil {
+				log.Printf("%v(%v)", err, conn.RemoteAddr())
+				return err
+			}
+			continue
+		}
+		line := scanr.Text()
+		log.Println("Receive: ", line)
+		parts := strings.Fields(line)
+		if len(parts) < 4 {
+			log.Println("Error parse line \"", line, "\"")
+			w.WriteString("false\n")
+			w.Flush()
+			continue
+		}
+		n, _ := strconv.ParseInt(parts[0], 10, 32)
+		hash := CanonicalHash{
+			Sequence: int32(n),
+			Token:    parts[1],
+			Key:      parts[2],
+			Gen:      parts[3],
+			Owner:    parts[4],
+			Verified: false,
+		}
+
+		hash.Verified = store.Add(&hash)
+		if hash.Verified {
+			w.WriteString("true")
+		} else {
+			w.WriteString("false")
+		}
+		w.WriteString("\n")
+		w.Flush()
+	}
+	return nil
 }
