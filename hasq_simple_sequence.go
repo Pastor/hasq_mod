@@ -2,9 +2,9 @@ package main
 
 import (
 	"container/list"
-	"crypto/md5"
 	"crypto/rand"
 	"fmt"
+	"golang.org/x/crypto/sha3"
 )
 
 type HashSequence interface {
@@ -82,7 +82,7 @@ func Digest(params ...interface{}) []byte {
 	for _, p := range params {
 		h += fmt.Sprint(p)
 	}
-	digest := md5.Sum([]byte(h))
+	digest := sha3.Sum256([]byte(h))
 	return digest[:]
 }
 
