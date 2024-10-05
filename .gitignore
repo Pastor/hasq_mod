@@ -13,3 +13,4 @@
 *.out
 .bin
 simple/*.go
+go.sum

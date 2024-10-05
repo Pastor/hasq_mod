@@ -1,9 +1,10 @@
-package main
+package hashq_mod
 
 import (
 	"container/list"
 	"crypto/rand"
 	"fmt"
+
 	"golang.org/x/crypto/sha3"
 )
 

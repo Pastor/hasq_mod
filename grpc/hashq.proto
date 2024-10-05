@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/Pastor/hashq_mod/grpc";
+
+package hashq_grpc;
+
+service Hash {
+  rpc Add (AddRequest) returns (AddReply) {}
+}
+
+message AddRequest {
+  int32 sequence = 1;
+  string token = 2;
+  string key = 3;
+  string gen = 4;
+  string owner = 5;
+}
+
+message AddReply {
+  bool verified = 1;
+}

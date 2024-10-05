@@ -1,4 +1,4 @@
-package main
+package hashq_mod
 
 import (
 	"flag"
@@ -44,7 +44,15 @@ func main() {
 		c.StoreTokens()
 	} else if mode == "testing" {
 		var verified bool
-		go StartService(address, &store)
+		var established = make(chan bool)
+		go func() {
+			established <- true
+			err := StartService(address, &store)
+			if err != nil {
+				panic(err)
+			}
+		}()
+		<-established
 		sc := NewSimpleClient(address)
 		defer sc.Close()
 		c := NewClient()
@@ -63,7 +71,10 @@ func main() {
 		}
 	} else if mode == "service" {
 		log.Println("Starting ", address, " ...")
-		StartService(address, &store)
+		err := StartService(address, &store)
+		if err != nil {
+			return
+		}
 	} else {
 		log.Fatal("Unknown mode ", mode)
 		os.Exit(-1)

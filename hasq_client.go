@@ -1,4 +1,4 @@
-package main
+package hashq_mod
 
 import (
 	"container/list"
@@ -25,7 +25,7 @@ func (c *Client) LoadTokens() bool {
 		if index <= -1 {
 			continue
 		}
-		w := string(name[0:index])
+		w := name[0:index]
 		token := LoadToken(w)
 		if token == nil {
 			continue

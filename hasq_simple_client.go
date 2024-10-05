@@ -1,4 +1,4 @@
-package main
+package hashq_mod
 
 import (
 	"bufio"
@@ -15,21 +15,26 @@ func NewSimpleClient(address string) SimpleClient {
 }
 
 func (sc *SimpleClient) Close() {
-	_ = sc.Connection.Close()
+	if sc.Connection != nil {
+		_ = sc.Connection.Close()
+	}
 }
 
 func (sc *SimpleClient) CreateHash(hash *CanonicalHash) bool {
+	if sc.Connection == nil {
+		return false
+	}
 	w := bufio.NewWriter(sc.Connection)
-	w.WriteString(hash.StringifyWithDigest() + "\n")
-	w.Flush()
+	_, _ = w.WriteString(hash.StringifyWithDigest() + "\n")
+	_ = w.Flush()
 	r := bufio.NewReader(sc.Connection)
-	scanr := bufio.NewScanner(r)
-	scanned := scanr.Scan()
+	scanner := bufio.NewScanner(r)
+	scanned := scanner.Scan()
 	if !scanned {
-		if err := scanr.Err(); err != nil {
+		if err := scanner.Err(); err != nil {
 			return false
 		}
 	}
-	line := scanr.Text()
+	line := scanner.Text()
 	return line == "true"
 }

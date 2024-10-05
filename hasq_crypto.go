@@ -1,4 +1,4 @@
-package main
+package hashq_mod
 
 import (
 	"crypto"

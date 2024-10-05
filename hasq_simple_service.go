@@ -1,4 +1,4 @@
-package main
+package hashq_mod
 
 import (
 	"bufio"
@@ -35,17 +35,17 @@ func HandleClient(store *HashStore, conn net.Conn) error {
 	}()
 	r := bufio.NewReader(conn)
 	w := bufio.NewWriter(conn)
-	scanr := bufio.NewScanner(r)
+	scanner := bufio.NewScanner(r)
 	for {
-		scanned := scanr.Scan()
+		scanned := scanner.Scan()
 		if !scanned {
-			if err := scanr.Err(); err != nil {
+			if err := scanner.Err(); err != nil {
 				log.Printf("%v(%v)", err, conn.RemoteAddr())
 				return err
 			}
 			continue
 		}
-		line := scanr.Text()
+		line := scanner.Text()
 		log.Println("Receive: ", line)
 		parts := strings.Fields(line)
 		if len(parts) < 4 {
