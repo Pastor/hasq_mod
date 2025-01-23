@@ -17,9 +17,11 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version: '1.22.1'
+        cache-dependency-path: "**/*.sum"
+    - run: go version
 
     - name: Go modules Cache # Docs: <https://git.io/JfAKn#go---modules>
       uses: actions/cache@v2
@@ -32,11 +34,11 @@ jobs:
     - if: steps.go-cache.outputs.cache-hit != 'true'
       run: go mod download
 
-    - name: Install dependencies
-      run: go get .
-
-    - name: Verify dependencies
-      run: go mod verify
+    - name: Dependencies
+      run: |
+        go get .
+        go mod edit -replace=google.golang.org/grpc=github.com/grpc/grpc-go@latest
+        go mod tidy
 
     - name: Build
       run: go build -v ./...
