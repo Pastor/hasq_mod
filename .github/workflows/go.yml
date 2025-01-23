@@ -32,6 +32,9 @@ jobs:
     - if: steps.go-cache.outputs.cache-hit != 'true'
       run: go mod download
 
+    - name: Install dependencies
+      run: go get .
+
     - name: Verify dependencies
       run: go mod verify
 
