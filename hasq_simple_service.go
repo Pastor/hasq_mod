@@ -24,14 +24,14 @@ func StartService(address string, store *HashStore) error {
 			continue
 		}
 		log.Printf("accepted connection from %v", conn.RemoteAddr())
-		HandleClient(store, conn) //TODO: Implement me
+		_ = HandleClient(store, conn) //TODO: Implement me
 	}
 }
 
 func HandleClient(store *HashStore, conn net.Conn) error {
 	defer func() {
 		log.Printf("closing connection from %v", conn.RemoteAddr())
-		conn.Close()
+		_ = conn.Close()
 	}()
 	r := bufio.NewReader(conn)
 	w := bufio.NewWriter(conn)
@@ -50,8 +50,8 @@ func HandleClient(store *HashStore, conn net.Conn) error {
 		parts := strings.Fields(line)
 		if len(parts) < 4 {
 			log.Println("Error parse line \"", line, "\"")
-			w.WriteString("false\n")
-			w.Flush()
+			_, _ = w.WriteString("false\n")
+			_ = w.Flush()
 			continue
 		}
 		n, _ := strconv.ParseInt(parts[0], 10, 32)
@@ -66,12 +66,12 @@ func HandleClient(store *HashStore, conn net.Conn) error {
 
 		hash.Verified = store.Add(&hash)
 		if hash.Verified {
-			w.WriteString("true")
+			_, _ = w.WriteString("true")
 		} else {
-			w.WriteString("false")
+			_, _ = w.WriteString("false")
 		}
-		w.WriteString("\n")
-		w.Flush()
+		_, _ = w.WriteString("\n")
+		_ = w.Flush()
 	}
 	return nil
 }

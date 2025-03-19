@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"container/list"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -46,7 +45,7 @@ func (store *HashStore) StoreHash(hash string) bool {
 }
 
 func (store *HashStore) LoadAll() bool {
-	files, err := ioutil.ReadDir(".")
+	files, err := os.ReadDir(".")
 	if err != nil {
 		return false
 	}

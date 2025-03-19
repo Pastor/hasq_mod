@@ -1,9 +1,11 @@
-package hashq_mod
+package main
 
 import (
 	"flag"
 	"log"
 	"os"
+
+	"hashq_mod"
 )
 
 func main() {
@@ -27,10 +29,10 @@ func main() {
 	flag.StringVar(&clientToken, "c_tok", "empty", "Client token")
 	flag.Parse()
 
-	store := NewStore()
+	store := hashq_mod.NewStore()
 	store.LoadAll()
 	if mode == "selftest" {
-		c := NewClient()
+		c := hashq_mod.NewClient()
 		c.LoadTokens()
 		tokenHash := c.NewToken(data)
 		for i := 0; i < count; i++ {
@@ -47,15 +49,15 @@ func main() {
 		var established = make(chan bool)
 		go func() {
 			established <- true
-			err := StartService(address, &store)
+			err := hashq_mod.StartService(address, &store)
 			if err != nil {
 				panic(err)
 			}
 		}()
 		<-established
-		sc := NewSimpleClient(address)
+		sc := hashq_mod.NewSimpleClient(address)
 		defer sc.Close()
-		c := NewClient()
+		c := hashq_mod.NewClient()
 		c.LoadTokens()
 		tokenHash := c.NewToken(data)
 		for i := 0; i < count; i++ {
@@ -71,7 +73,7 @@ func main() {
 		}
 	} else if mode == "service" {
 		log.Println("Starting ", address, " ...")
-		err := StartService(address, &store)
+		err := hashq_mod.StartService(address, &store)
 		if err != nil {
 			return
 		}

@@ -2,7 +2,7 @@ package hashq_mod
 
 import (
 	"container/list"
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -15,7 +15,7 @@ func NewClient() Client {
 }
 
 func (c *Client) LoadTokens() bool {
-	files, err := ioutil.ReadDir(".")
+	files, err := os.ReadDir(".")
 	if err != nil {
 		return false
 	}
